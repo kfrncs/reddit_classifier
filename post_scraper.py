@@ -70,12 +70,12 @@ class Scraper:
                 # If post has a "selftext" field, append it to the content list
                 if self.last_request['data']['children'][post]['data']['selftext']:    
                     self.content.append(self.last_request['data']['children'][post]['data']['selftext'])
-                    print(f'appended selftext from post {post}, page {page} to content')
+                    print(f'appended selftext from post {post}, page {page} to {self.category}.content')
 
                 # If post has "title", append it to content list
                 elif self.last_request['data']['children'][post]['data']['title']:
                     self.content.append(self.last_request['data']['children'][post]['data']['title'])
-                    print(f'appended title from post {post}, page {page} to content')
+                    print(f'appended title from post {post}, page {page} to {self.category}.content')
 
             # avoid Error 429
             sleep(1.6)
@@ -95,6 +95,7 @@ class Scraper:
         #TODO: save file as csv index=false
         # with os.open
 
+        self.df.to_csv(f'{self.category}-{pd.datetime.now().strftime("%Y-%m-%d")}.csv', index=False)
 
         return self
 
