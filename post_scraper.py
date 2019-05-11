@@ -44,7 +44,7 @@ class Scraper:
             self.category = category
 
 
-    def scrape(self, pages=5):
+    def scrape(self, pages=3):
         """ fetch posts from Reddit API. Iterations chooses how many pages to scrape. """
 
         for page in range(1, pages+1):
@@ -66,16 +66,11 @@ class Scraper:
 
             # iterate through posts in most recently fetched JSON
             for post in range(len(self.last_request['data']['children'])):
-
-                # If post has a "selftext" field, append it to the content list
-                if self.last_request['data']['children'][post]['data']['selftext']:    
-                    self.content.append(self.last_request['data']['children'][post]['data']['selftext'])
-                    print(f'appended selftext from post {post}, page {page} to {self.category}.content')
-
+                
                 # If post has "title", append it to content list
-                elif self.last_request['data']['children'][post]['data']['title']:
+                if self.last_request['data']['children'][post]['data']['title']:
                     self.content.append(self.last_request['data']['children'][post]['data']['title'])
-                    print(f'appended title from post {post}, page {page} to {self.category}.content')
+                    print(f'appended post {post}, page {page} to {self.category}.content.')
 
             # avoid Error 429
             sleep(1.6)
@@ -108,10 +103,10 @@ if __name__ == "__main__":
     print('client_auth ran')
 
     ct = Scraper('conspiracytheories', category='ct')
-    ct.scrape()
+    ct.scrape(500)
     ct.content_to_csv()
 
     td = Scraper('the_donald', category='td')
-    td.scrape()
+    td.scrape(500)
     td.content_to_csv()
 
