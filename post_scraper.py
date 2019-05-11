@@ -44,6 +44,7 @@ class Scraper:
                 self.last_request = requests.get(f'https://www.reddit.com/r/{self.subreddit}.json?after={self.after}',
                                             headers=headers)
                 print(f'fetched page {i}')
+
             # else start at the beginning
             else:
                 self.last_request = requests.get(f'https://www.reddit.com/r/{self.subreddit}.json',
@@ -52,15 +53,15 @@ class Scraper:
 
             # parse JSON from the last request, inplace
             self.last_request = json.loads(self.last_request.text)
-            
+
             # iterate through posts in most recently fetched JSON
             for post in range(len(self.last_request['data']['children'])):
-                
+
                 # If post has a "selftext" field, append it to the content list
                 if self.last_request['data']['children'][post]['data']['selftext']:    
                     self.content.append(self.last_request['data']['children'][post]['data']['selftext'])
                     print(f'appended selftext from post {post}')
-                
+
                 # If post has "title", append it to content list
                 elif self.last_request['data']['children'][post]['data']['title']:
                     self.content.append(self.last_request['data']['children'][post]['data']['title'])
@@ -83,12 +84,11 @@ class Scraper:
 
 if __name__ == "__main__":
     """ Scrape two subreddits, combine, save to csv. """
+
     # scrape(subreddit_a)
     client_auth = requests.auth.HTTPBasicAuth(REDDIT_ID, REDDIT_TOKEN)
     print('client_auth ran')
-    
+
     ct = Scraper()
     ct.scrape()
-    # test['data']['children'][0]['data']['selftext']
-    # oh jeez
 
