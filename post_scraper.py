@@ -9,6 +9,7 @@ import requests
 # load environment variables from .env
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
+REDDIT_TOKEN = os.environ['REDDIT_TOKEN']   
 
 # set subreddits to scrape
 subreddit_a = 'conspiracytheories'
