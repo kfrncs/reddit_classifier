@@ -104,4 +104,4 @@ venv.bak/
 .mypy_cache/
 
 # ignore saved data
-data/*
+*.csv
