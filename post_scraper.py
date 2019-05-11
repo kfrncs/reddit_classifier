@@ -9,6 +9,8 @@ To collect posts from two SubReddits and save a CSV of the corpus.
 import requests
 import os
 import json
+import pandas as pd
+from time import sleep
 
 # load environment variables from .env
 from dotenv import load_dotenv, find_dotenv
@@ -19,15 +21,16 @@ REDDIT_TOKEN = os.environ['REDDIT_TOKEN']
 REDDIT_ID = os.environ['REDDIT_ID']   
 
 # set headers for API requests
-headers = {"Authorization": REDDIT_ID + REDDIT_TOKEN, "User-Agent": "reddit_scraping/0.1 by kfrncs"}
+headers = {"Authorization": REDDIT_ID + REDDIT_TOKEN, "User-Agent": "reddit_scraping/0.1 by kfrncs"} 
 
 
 class Scraper:
 
-    def __init__(self, subreddit='conspiracytheories', category='unknown'):
+    def __init__(self, subreddit, category='unknown'):
         ''' A class to scrape Reddit posts for bag-of-words NLP'''
 
         # "after" attribute for tracking how far we have scraped into the sub's history
+        # see for more: https://www.reddit.com/dev/api/
         self.after = None
         # set subreddit to scrape
         self.subreddit = subreddit
@@ -39,7 +42,7 @@ class Scraper:
             self.category = input(f'Please input the category for {self}')
         else:
             self.category = category
-        
+
 
     def scrape(self, pages=5):
         """ fetch posts from Reddit API. Iterations chooses how many pages to scrape. """
@@ -74,28 +77,40 @@ class Scraper:
                     self.content.append(self.last_request['data']['children'][post]['data']['title'])
                     print(f'appended title from post {post}, page {page} to content')
 
-
-    #   if 'selftext':
-    #   last_request['data']['children'][0]['data']['selftext'])
-    #   just title:
-    #   last_request['data']['children'][i]['data']['title']
+            # avoid Error 429
+            sleep(1.6)
+            print('slept 1.6 seconds')
 
         # make post_after read where to start for next request
         self.after = self.last_request['data']['after']
 
         return self
 
-    def combine_to_df():
-        """ Combine scraped lists into a single df """
-        return self 
+
+    def content_to_csv(self):
+        """ Stores content to df, outputs a DataFrame with the date and name of SubReddit """
+        self.df = pd.DataFrame(self.content, columns=['document'])
+        self.df['category'] = self.category
+
+        #TODO: save file as csv index=false
+        # with os.open
+
+
+        return self
+
+
 
 if __name__ == "__main__":
     """ Scrape two subreddits, combine, save to csv. """
 
-    # scrape(subreddit_a)
     client_auth = requests.auth.HTTPBasicAuth(REDDIT_ID, REDDIT_TOKEN)
     print('client_auth ran')
 
-    ct = Scraper()
+    ct = Scraper('conspiracytheories', category='ct')
     ct.scrape()
+    ct.content_to_csv()
+
+    td = Scraper('the_donald', category='td')
+    td.scrape()
+    td.content_to_csv()
 
