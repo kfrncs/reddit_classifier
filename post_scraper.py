@@ -6,6 +6,11 @@ To collect posts from two SubReddits and save a CSV of the corpus.
 """
 import requests
 
+# load environment variables from .env
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+# set subreddits to scrape
 subreddit_a = 'conspiracytheories'
 subreddit_b = 'the_donald'
 
@@ -19,5 +24,5 @@ def combine_to_df():
     return df
 
 if __name__ == "__main__":
-    """ This is executed when run from the command line """
+    """ Scrape two subreddits, combine, save to csv. """
     scrape(subreddit_a)
