@@ -81,8 +81,8 @@ class Scraper:
             sleep(1.6)
             print('slept 1.6 seconds')
 
-        # make post_after read where to start for next request
-        self.after = self.last_request['data']['after']
+            # make post_after read where to start for next request
+            self.after = self.last_request['data']['after']
 
         return self
 
