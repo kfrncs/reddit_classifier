@@ -95,7 +95,7 @@ class Scraper:
         #TODO: save file as csv index=false
         # with os.open
 
-        self.df.to_csv(f'{self.category}-{pd.datetime.now().strftime("%Y-%m-%d")}.csv', index=False)
+        self.df.to_csv(f'data/{self.category}-{pd.datetime.now().strftime("%Y-%m-%d")}.csv', index=False)
 
         return self
 
