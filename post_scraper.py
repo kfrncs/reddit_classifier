@@ -78,6 +78,10 @@ class Scraper:
 
             # make post_after read where to start for next request
             self.after = self.last_request['data']['after']
+            print('updated "after"')
+
+            self.content_to_csv()
+            print('saved csv')
 
         return self
 
@@ -104,9 +108,7 @@ if __name__ == "__main__":
 
     ct = Scraper('conspiracytheories', category='ct')
     ct.scrape(500)
-    ct.content_to_csv()
 
     td = Scraper('the_donald', category='td')
     td.scrape(500)
-    td.content_to_csv()
 
