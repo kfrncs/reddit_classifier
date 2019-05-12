@@ -107,8 +107,8 @@ if __name__ == "__main__":
     print('client_auth ran')
 
     ct = Scraper('conspiracytheories', category='ct')
-    ct.scrape(500)
+    ct.scrape()
 
     td = Scraper('the_donald', category='td')
-    td.scrape(500)
+    td.scrape()
 
