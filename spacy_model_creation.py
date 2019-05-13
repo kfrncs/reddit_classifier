@@ -29,20 +29,32 @@ spacy_stopwords = spacy.lang.en.stop_words.STOP_WORDS
 parser = English()
 punctuation = string.punctuation
 
-def spacy_tokenizer(post):
+def string_tokenizer(post):
     """ Parse posts and tokenize 
     
         adapted from https://www.dataquest.io/blog/tutorial-text-classification-in-python-using-spacy/
     """
 
     my_tokens = parser(post)
-
     # -PRON- bit is for pronouns: https://spacy.io/api/annotation#lemmatization
     my_tokens = [ word.lemma_.lower().strip() if word.lemma_ != "-PRON-" else word.lower_ for word in my_tokens ]
-
     my_tokens = [ word for word in my_tokens if word not in spacy_stopwords and word not in punctuation ]
 
     return ' '.join(my_tokens)
+
+
+# HEY MAX - is there a cleaner way to do this??
+def list_tokenizer(input_list):
+    """ string_tokenizes through lists """
+
+    output_list = []
+
+    for post in range(0, len(input_list)):
+        output_list.append(string_tokenizer(input_list[post]))
+        print(f'tokenized {post} in list_tokenizer')
+
+    return output_list
+
 
 def df_to_list(df):
     """ Take input DataFrame, return a list with all the values from 'document' """
@@ -66,26 +78,24 @@ if __name__ == "__main__":
     print('shortened td_list')
     ct_list = ct_list[:12000]
     print('shortened ct_list')
-    
+
     print('starting Spacy tokenization on td_list')
-    for post in range(len(td_list)):
-        td_list[post] = spacy_tokenizer(td_list[post])
-        print(f'tokenized {post} in td_list')
+    td_list = list_tokenizer(td_list)
 
     print('starting Spacy tokenization on ct_list')
     for post in range(len(ct_list)):
-        ct_list[post] = spacy_tokenizer(ct_list[post])
+        ct_list[post] = string_tokenizer(ct_list[post])
         print(f'tokenized {post} in ct_list')
- 
+
     td_df = pd.DataFrame(td_list, columns=['document'])
     td_df['category'] = 0
     ct_df = pd.DataFrame(ct_list, columns=['document'])
     ct_df['category'] = 1
     print('created separate dataframes from lists')
-    
+
     corpus = td_df.append(ct_df)
     print('combined dataframes')
-    
+
     # Train_test_split
     x = corpus['document'].values
     y = corpus['category'].values
@@ -115,10 +125,17 @@ if __name__ == "__main__":
     # make df with all preds
     df = pd.DataFrame(list(zip(cnb_preds, lr_preds, knn_preds, y_test, x_test)), 
                       columns=['cnb_preds', 'lr_preds', 'knn_preds', 'category', 'document'])
+    
+    # save incorrect predictions in a df
+    lr_incorrect = df[df['lr_preds'] != df['category']].copy()
+    knn_incorrect = df[df['knn_preds'] != df['category']].copy()
+    cnb_incorrect = df[df['cnb_preds'] != df['category']].copy()
 
-    lr_incorrect = df[df['lr_preds'] != df['category']]
-    knn_incorrect = df[df['knn_preds'] != df['category']]
-    cnb_incorrect = df[df['cnb_preds'] != df['category']]
-    two_incorrect = knn_incorrect[knn_incorrect['lr_preds'] != knn_incorrect['category']]
-    all_incorrect = two_incorrect[two_incorrect['cnb_preds'] != two_incorrect['category']]
+    # combine lr and knn incorrects
+    two_incorrect = knn_incorrect[knn_incorrect['lr_preds'] != knn_incorrect['category']].copy()
+    all_incorrect = two_incorrect[two_incorrect['cnb_preds'] != two_incorrect['category']].copy()
+
+    print('knn score: ', knn.score(test_data_features, y_test))
+    print('log_reg score: ', log_reg.score(test_data_features, y_test))
+    print('ComplementNaiveBayes score: ', cnb.score(test_data_features, y_test))
 
