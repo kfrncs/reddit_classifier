@@ -103,9 +103,10 @@ if __name__ == "__main__":
     client_auth = requests.auth.HTTPBasicAuth(REDDIT_ID, REDDIT_TOKEN)
     print('client_auth ran')
 
-    ct = Scraper('conspiracytheories', category='ct')
+    td = Scraper('the_donald', category=0)
+    td.scrape()
+
+    ct = Scraper('conspiracytheories', category=1)
     ct.scrape()
 
-    td = Scraper('the_donald', category='td')
-    td.scrape()
 

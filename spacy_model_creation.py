@@ -6,6 +6,7 @@ Spacy Model Creation
 """
 
 # imports
+from joblib import dump, load
 import string
 import pandas as pd
 import spacy
@@ -83,9 +84,7 @@ if __name__ == "__main__":
     td_list = list_tokenizer(td_list)
 
     print('starting Spacy tokenization on ct_list')
-    for post in range(len(ct_list)):
-        ct_list[post] = string_tokenizer(ct_list[post])
-        print(f'tokenized {post} in ct_list')
+    ct_list = list_tokenizer(ct_list)
 
     td_df = pd.DataFrame(td_list, columns=['document'])
     td_df['category'] = 0
@@ -108,15 +107,18 @@ if __name__ == "__main__":
     test_data_features = vectorizer.transform(x_test)
     vocab = vectorizer.get_feature_names()
     print('trained and transformed w/ vectorizer')
+    dump(vectorizer, 'vectorizer.joblib')
 
     # model training
     log_reg = LogisticRegression()
     log_reg.fit(train_data_features, y_train)
     lr_preds = log_reg.predict(test_data_features) 
 
+    # keep the knn, it's the best
     knn = KNeighborsClassifier()
     knn.fit(train_data_features, y_train)
     knn_preds = knn.predict(test_data_features) 
+    dump(knn, 'knn.joblib')
 
     cnb = ComplementNB()
     cnb.fit(train_data_features, y_train)
@@ -125,8 +127,8 @@ if __name__ == "__main__":
     # make df with all preds
     df = pd.DataFrame(list(zip(cnb_preds, lr_preds, knn_preds, y_test, x_test)), 
                       columns=['cnb_preds', 'lr_preds', 'knn_preds', 'category', 'document'])
-    
-    # save incorrect predictions in a df
+
+    # save incorrect predictions in a df to look at 
     lr_incorrect = df[df['lr_preds'] != df['category']].copy()
     knn_incorrect = df[df['knn_preds'] != df['category']].copy()
     cnb_incorrect = df[df['cnb_preds'] != df['category']].copy()
